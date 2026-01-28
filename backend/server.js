@@ -27,16 +27,12 @@ const serviceAccountPath = "/etc/secrets/firebase-service-account.json";
 
 if (!admin.apps.length) {
   if (!fs.existsSync(serviceAccountPath)) {
-    console.error("❌ Firebase service account file not found");
+    console.error("❌ Firebase service account file not found at:", serviceAccountPath);
     process.exit(1);
   }
 
-  const serviceAccount = JSON.parse(
-    fs.readFileSync(serviceAccountPath, "utf8")
-  );
-
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(serviceAccountPath),
   });
 
   console.log("✅ Firebase Admin initialized");
