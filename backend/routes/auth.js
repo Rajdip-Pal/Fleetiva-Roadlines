@@ -7,6 +7,15 @@ const User = require("../models/User");
 const router = express.Router();
 
 /* ================= REGISTER (OTP DISABLED) ================= */
+const { fullName, phone, password, role, companyName } = req.body;
+
+if (!password) {
+  return res.status(400).json({
+    message: "Password is required",
+  });
+}
+console.log("REGISTER BODY:", req.body);
+
 router.post("/register", async (req, res) => {
   try {
     const { name, phone, password, role, companyName } = req.body;
