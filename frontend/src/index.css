@@ -62,6 +62,58 @@ textarea {
   gap: 24px;
 }
 
+.hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  align-items: center;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pill {
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-size: 36px;
+  margin: 0;
+  color: #0f172a;
+}
+
+.hero-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 16px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.hero-card {
+  min-height: 140px;
+}
+
 .page-header {
   display: flex;
   flex-wrap: wrap;

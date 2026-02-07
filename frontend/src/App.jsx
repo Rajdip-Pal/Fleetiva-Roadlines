@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AppContext } from "./context/appContextStore";
 
 import Navbar from "./components/Navbar";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -48,7 +49,7 @@ const App = () => {
       {showNavbar && <Navbar />}
 
       <Routes>
-        <Route path="/" element={<RootRedirect />} />
+        <Route path="/" element={user ? <RootRedirect /> : <LandingPage />} />
         {/* Public */}
         <Route path="/login" element={user ? <RootRedirect /> : <Login />} />
         <Route path="/register" element={user ? <RootRedirect /> : <Register />} />
