@@ -1,15 +1,16 @@
 import { useState, useContext } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { AppContext } from "../context/appContextStore";
 import Toast from "../components/Toast";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import api from "../api/axios";
+import { safeStorage } from "../utils/storage";
+import { auth, hasFirebaseConfig } from "../firebase";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { loading, setLoading } = useContext(AppContext);
-  const authUnavailable = !auth;
+  const { loading, setLoading, setUser } = useContext(AppContext);
 
   const [error, setError] = useState("");
 
@@ -17,26 +18,58 @@ export default function Register() {
     companyName: "",
     name: "",
     email: "",
+    phone: "",
     password: "",
     role: "customer",
   });
 
+  const registerWithApi = async () => {
+    const response = await api.post("/auth/register", formData);
+    safeStorage.set("accessToken", response.data.accessToken);
+    safeStorage.set("role", response.data.user.role);
+    setUser(response.data.user);
+    return response.data.user.role;
+  };
+
+  const registerWithFirebase = async () => {
+    if (!auth) {
+      throw new Error("Firebase auth is unavailable.");
+    }
+    const credential = await createUserWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.password
+    );
+    const idToken = await credential.user.getIdToken();
+    const response = await api.post("/auth/firebase/register", {
+      idToken,
+      name: formData.name,
+      phone: formData.phone,
+      role: formData.role,
+      companyName: formData.companyName,
+    });
+    safeStorage.set("accessToken", response.data.accessToken);
+    safeStorage.set("role", response.data.user.role);
+    setUser(response.data.user);
+    return response.data.user.role;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
-    if (authUnavailable) {
-      setError("Authentication is not configured. Please set Firebase env values.");
-      return;
-    }
 
     setError("");
     setLoading(true);
 
     try {
-      await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      navigate("/dashboard");
+      const role = hasFirebaseConfig
+        ? await registerWithFirebase()
+        : await registerWithApi();
+      if (role === "admin") navigate("/admin", { replace: true });
+      else if (role === "driver") navigate("/driver", { replace: true });
+      else navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(err.response?.data?.message || err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -57,11 +90,6 @@ export default function Register() {
         </p>
 
         {error && <Toast message={error} />}
-        {authUnavailable && (
-          <p className="text-muted" style={{ textAlign: "center", marginTop: 12 }}>
-            Firebase authentication is not configured for this environment.
-          </p>
-        )}
 
         <form onSubmit={handleSubmit} className="form" style={{ marginTop: 24 }}>
           <input
@@ -122,11 +150,7 @@ export default function Register() {
             <option value="admin">Admin</option>
           </select>
 
-          <button
-            type="submit"
-            disabled={loading || authUnavailable}
-            className="btn btn-primary"
-          >
+          <button type="submit" disabled={loading} className="btn btn-primary">
             {loading ? "Creating account..." : "Register"}
           </button>
         </form>

@@ -8,7 +8,7 @@ export default function DriverDashboard() {
 
   const fetchBookings = () =>
     api
-      .get("/driver/bookings")
+      .get("/booking/driver/bookings")
       .then((res) => setBookings(res.data))
       .catch((error) => console.error("Fetch error:", error))
       .finally(() => setLoading(false));

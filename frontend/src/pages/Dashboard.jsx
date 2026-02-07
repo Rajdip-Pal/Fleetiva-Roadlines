@@ -8,7 +8,7 @@ export default function Dashboard() {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    api.get("/customer/bookings").then((res) => setBookings(res.data));
+    api.get("/booking/customer/bookings").then((res) => setBookings(res.data));
   }, []);
 
   return (

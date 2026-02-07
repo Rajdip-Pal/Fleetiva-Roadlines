@@ -3,6 +3,8 @@ import { Helmet } from "react-helmet-async";
 import api from "../api/axios";
 
 export default function PostLoad() {
+  const [consignorName, setConsignorName] = useState("");
+  const [consigneeName, setConsigneeName] = useState("");
   const [material, setMaterial] = useState("");
   const [capacity, setCapacity] = useState("");
   const [from, setFrom] = useState("");
@@ -11,12 +13,16 @@ export default function PostLoad() {
   const postLoad = async () => {
     try {
       await api.post("/load/post", {
+        consignorName,
+        consigneeName,
         material,
         requiredCapacity: Number(capacity),
         from,
         to,
       });
       alert("Load Posted Successfully");
+      setConsignorName("");
+      setConsigneeName("");
       setMaterial("");
       setCapacity("");
       setFrom("");
@@ -41,6 +47,28 @@ export default function PostLoad() {
           </p>
         </div>
         <div className="form">
+          <div className="form-row">
+            <div className="stack">
+              <label className="label" htmlFor="consignor">Consignor Name</label>
+              <input
+                id="consignor"
+                className="input"
+                placeholder="e.g. ABC Steel Ltd"
+                value={consignorName}
+                onChange={(e) => setConsignorName(e.target.value)}
+              />
+            </div>
+            <div className="stack">
+              <label className="label" htmlFor="consignee">Consignee Name</label>
+              <input
+                id="consignee"
+                className="input"
+                placeholder="e.g. XYZ Infra Pvt Ltd"
+                value={consigneeName}
+                onChange={(e) => setConsigneeName(e.target.value)}
+              />
+            </div>
+          </div>
           <div className="form-row">
             <div className="stack">
               <label className="label" htmlFor="material">Material Name</label>

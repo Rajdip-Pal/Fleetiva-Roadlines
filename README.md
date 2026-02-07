@@ -1,140 +1,122 @@
-# 🚚 Logistics & Transport Management System (SaaS)
+# 🚚 Fleetiva Roadlines — Logistics & Transport SaaS
 
-## 📝 Overview
-In the traditional logistics sector, matching loads with available trucks is often a manual, fragmented process involving multiple middlemen. This **Multi-Tenant SaaS** platform digitizes the entire workflow—from load posting and truck availability to smart matching, digital Bilty generation, and GST invoicing.
+## Overview
+Fleetiva Roadlines is a production-ready logistics platform for load posting, truck assignment, booking management, and Bilty (LR) generation. It supports role-based access for **Customers**, **Drivers**, and **Admins**, with real-time shipment status updates and printable documentation.
 
-It provides a centralized ecosystem for Logistics Companies (Tenants) to manage their customers and drivers with complete data isolation.
+## Key Features
+- **Role-Based Access Control (RBAC)** for customers, drivers, and admins.
+- **JWT Authentication** with secure password hashing (bcrypt).
+- **Load Posting & Matching** to assign available trucks.
+- **Booking Management** with shipment status workflow.
+- **Real Bilty (LR) Generation** stored in MongoDB and printable as PDF.
+- **Payment Tracking** with balance calculations and status updates.
+- **OTP Password Recovery** via Redis + Twilio.
+- **Centralized Error Handling** and audit logs.
 
-## 🌟 Key Features
+## Tech Stack
+**Frontend**
+- React + Vite
+- Axios with interceptors
+- Role-based routing
+- Clean UI (CSS modules style)
 
-- **Multi-Tenant Architecture**: Complete data isolation between different logistics companies (tenants).
-- **Role-Based Access Control (RBAC)**: Dedicated dashboards for **Admins**, **Drivers** (Truck Owners), and **Customers** (Load Owners).
-- **Smart Matching**: Algorithm to match available trucks with loads based on capacity and vehicle type.
-- **Secure Authentication**: JWT-based auth with Access/Refresh token rotation and OTP verification via Twilio & Redis.
-- **Password Recovery**: OTP-based forgot password flow for secure account recovery.
-- **Digital Documentation**: Automated generation of 4-copy Bilty and GST Invoices in PDF format.
-- **Real-time Status Tracking**: Workflow management from 'Assigned' to 'In-Transit' and 'Delivered'.
+**Backend**
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT auth
+- bcrypt password hashing
+- PDFKit for Bilty/Invoice generation
 
-## 🛠️ Tech Stack
-
-**Frontend:**
-- React.js (Vite)
-- React Router (Routing)
-- Axios (API Calls with Interceptors)
-- CSS-in-JS (Modern, responsive UI)
-
-**Backend:**
-- Node.js & Express.js
-- MongoDB & Mongoose (Database & Modeling)
-- Redis (OTP Storage & Rate Limiting)
-- Twilio (SMS Gateway)
-- PDFKit (Document Generation)
-
----
-
-## 🚀 Getting Started
-## 🚀 Quick Start (Beginner Friendly)
-
-Follow these steps to run the project locally.
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/your-username/Fleetiva-Roadlines.git
-cd Fleetiva-Roadlines
-
-### Prerequisites
-
-- Node.js (v18+)
-- MongoDB (Local or Atlas)
-- Redis Server (Running on port 6379)
-- Twilio Account (for SMS features)
-
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/logistics-transport-system.git
-   cd logistics-transport-system
- ```
-## 🧪 Verifying the Setup
-
-
-After starting both backend and frontend:
-
-- Open http://localhost:3000 in your browser
-- Ensure the frontend loads without errors
-- Check backend logs to confirm MongoDB is connected
-
-If the application loads successfully, the setup is complete 🎉
-
-2. **Backend Setup:**
-   ```bash
-   cd backend
-   npm install
-   ```
-   Create a `.env` file based on `.env.example` and fill in your credentials.
-
-   Start the backend:
-   ```bash
-   npm run dev
-   ```
-
-3. **Frontend Setup:**
-   ```bash
-   cd ../frontend
-   npm install
-   ```
-   Start the frontend:
-   ```bash
-   npm run dev
-   ```
-
----
-
-## 🏗️ Project Structure
-
+## Project Structure
 ```text
-├── .github/
-│   ├── ISSUE_TEMPLATE/ # Bug & Feature templates
-│   └── workflows/      # CI/CD Pipeline (GitHub Actions)
-├── CONTRIBUTING.md     # Open-source contribution guidelines
-├── backend/
-│   ├── config/         # Service clients (Redis, Twilio)
-│   ├── middleware/     # Auth, Role, and Tenant scoping
-│   ├── models/         # Mongoose Schemas
-│   ├── routes/         # Modular API endpoints
-│   ├── utils/          # PDF Generation logic
-│   └── server.js       # Entry point
-└── frontend/
-    ├── src/
-    │   ├── api/        # Axios configuration
-    │   ├── components/ # Reusable UI components
-    │   ├── pages/      # Role-specific dashboards and forms
-    │   └── App.jsx     # Routing and Layout logic
+backend/
+  config/
+  middleware/
+  models/
+  routes/
+  utils/
+frontend/
+  src/
+    api/
+    components/
+    context/
+    pages/
 ```
 
-## 📝 API Documentation (Brief)
+## Environment Variables
+### Backend (`backend/.env`)
+- `MONGO_URI` — MongoDB Atlas connection string
+- `ACCESS_TOKEN_SECRET` — JWT secret
+- `ACCESS_TOKEN_TTL` — JWT TTL (e.g., `7d`)
+- `FRONTEND_URL` — production frontend URL
+- `FRONTEND_PREVIEW_URL` — preview URL (optional)
+- `CORS_ORIGINS` — comma-separated CORS allowlist
+- `VERCEL_PREVIEW_SUFFIX` — e.g. `.vercel.app`
+- `FREIGHT_RATE_PER_TON` — base freight rate
+- `OTP_TTL_SECONDS` — OTP expiration (default 600)
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` — Twilio SMS
+- `REDIS_URL` — Redis connection string
+- `SKIP_MONGO` — set `true` to skip DB (not for production)
+- `SKIP_FIREBASE` — set `true` if not using Firebase
 
-| Method | Endpoint | Description   |
-| :--- | :--- | :--- |
-| POST | `/api/auth/register` | Register new user/tenant & send OTP |
-| POST | `/api/auth/verify-otp` | Verify OTP and create account |
-| POST | `/api/auth/forgot-password` | Request password reset OTP |
-| POST | `/api/auth/reset-password` | Reset password using OTP |
-| GET | `/api/match/:loadId` | Find matching trucks for a load (Admin only) |
-| GET | `/api/booking/:id/bilty` | Generate and download Bilty PDF |
+### Frontend (`frontend/.env`)
+- `VITE_API_BASE_URL` — backend API base (e.g. `https://your-backend.onrender.com/api`)
+- `VITE_RENDER_SERVICE_NAME` — Render service name for preview URLs
+- `VITE_RENDER_SERVICE_URL` — Render base URL
+- `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
 
-## 🤖 CI/CD
+### Firebase Authorized Domains
+To use Google/Firebase login on Vercel or custom domains, add the deployed URL to **Firebase Console → Authentication → Settings → Authorized domains**.
 
-This project includes a **GitHub Actions** workflow for Continuous Integration. The pipeline automatically:
-- Performs security audits on backend dependencies.
-- Lints the codebase for consistency.
-- Verifies frontend builds.
+## Local Development
+### Backend
+```bash
+cd backend
+npm install
+cp .env.example .env
+npm run dev
+```
 
-##  Contributing
+### Frontend
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+```
 
-Contributions are welcome! Please read our CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+## Deployment
+### Backend (Render)
+1. Create a new **Web Service** on Render.
+2. Set build command: `npm install`
+3. Set start command: `npm start`
+4. Add environment variables from `backend/.env.example`.
+5. Ensure MongoDB Atlas IP allowlist includes Render.
 
-## 📄 License
+### Frontend (Vercel)
+1. Import the `frontend/` project into Vercel.
+2. Set `VITE_API_BASE_URL` to the Render backend URL + `/api`.
+3. Deploy.
 
-This project is licensed under the MIT License.
+## API Highlights
+- `POST /api/auth/register` — Register
+- `POST /api/auth/login` — Login
+- `GET /api/auth/me` — Current user
+- `POST /api/load/post` — Post load (customer)
+- `GET /api/load/available` — Loads (admin)
+- `POST /api/truck/post` — Post truck (driver)
+- `GET /api/match/:loadId` — Match trucks (admin)
+- `POST /api/booking/create` — Create booking + Bilty (admin)
+- `GET /api/booking/all` — All bookings (admin)
+- `GET /api/booking/customer/bookings` — Customer bookings
+- `GET /api/booking/driver/bookings` — Driver bookings
+- `PATCH /api/booking/:id/status` — Update status (driver)
+- `GET /api/booking/:id/bilty` — Download Bilty PDF
+- `GET /api/booking/:id/invoice` — Download Invoice PDF
+
+## Security Notes
+- Secrets are stored in `.env` only.
+- Passwords are hashed with bcrypt.
+- JWTs are validated on every protected route.
+- CORS and HTTP-only cookies are supported.
