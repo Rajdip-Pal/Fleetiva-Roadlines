@@ -7,8 +7,8 @@ import Navbar from "./components/Navbar";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import AdminDashboard from "./pages/AdminDashboard";
-import Dashboard from "./pages/Dashboard";
+import AdminDashboardPage from "./pages/AdminDashboard";
+import CustomerDashboard from "./pages/CustomerDashboard";
 import DriverDashboard from "./pages/DriverDashboard";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import SystemLogs from "./pages/SystemLogs";
@@ -61,7 +61,7 @@ const App = () => {
           path="/admin"
           element={
             <ProtectedRoute role="admin">
-              <AdminDashboard />
+              <AdminDashboardPage />
             </ProtectedRoute>
           }
         />
@@ -99,7 +99,7 @@ const App = () => {
           path="/dashboard"
           element={
             <ProtectedRoute role="customer">
-              <Dashboard />
+              <CustomerDashboard />
             </ProtectedRoute>
           }
         />
