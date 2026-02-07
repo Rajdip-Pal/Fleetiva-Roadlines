@@ -2,7 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const admin = require("firebase-admin");
-const db = admin.firestore();
+const { createOrUpdateUserWithFirestore } = require("../utils/userUtils");
 
 const router = express.Router();
 
@@ -16,29 +16,7 @@ router.post("/google", async (req, res) => {
 
   try {
     const decoded = await admin.auth().verifyIdToken(idToken);
-    const { email, name, uid } = decoded;
-
-    let user = await User.findOne({ googleId: uid });
-
-    if (!user) {
-      user = await User.create({
-        name,
-        email,
-        googleId: uid,
-        role: "customer",
-        authProvider: "google",
-      });
-
-      // Create Firestore user document
-      await db.collection('users').doc(user._id.toString()).set({
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        authProvider: user.authProvider,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        isVerified: false
-      });
-    }
+    const user = await createOrUpdateUserWithFirestore(decoded, 'google');
 
     const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
@@ -63,59 +41,15 @@ router.post("/firebase/login", async (req, res) => {
 
     // Verify Firebase token
     const decoded = await admin.auth().verifyIdToken(idToken);
-    const { uid, email, name, email_verified } = decoded;
+    const user = await createOrUpdateUserWithFirestore(decoded, 'firebase');
 
-    // Find or create user in MongoDB
-    let user = await User.findOne({
-      $or: [
-        { firebaseUid: uid },
-        { email: email }
-      ]
-    });
-
-    if (!user) {
-      user = await User.create({
-        name: name || email.split('@')[0],
-        email: email,
-        firebaseUid: uid,
-        authProvider: "firebase",
-        role: "customer",
-        isVerified: email_verified || false
-      });
-
-      // Create Firestore user document
-      await db.collection('users').doc(user._id.toString()).set({
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        authProvider: user.authProvider,
-        firebaseUid: user.firebaseUid,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        isVerified: user.isVerified
-      });
-      console.log("✅ New Firebase user created:", user._id);
-    } else {
-      // Update existing user with Firebase UID if not set
-      if (!user.firebaseUid) {
-        user.firebaseUid = uid;
-        user.authProvider = "firebase";
-        user.isVerified = email_verified || user.isVerified;
-        await user.save();
-
-        // Update Firestore document
-        await db.collection('users').doc(user._id.toString()).update({
-          firebaseUid: user.firebaseUid,
-          authProvider: user.authProvider,
-          isVerified: user.isVerified,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-        console.log("✅ Existing user updated with Firebase UID:", user._id);
-      }
+    // Fetch user profile from Firestore if Firebase is initialized
+    let userProfile = null;
+    if (admin.apps.length > 0) {
+      const db = admin.firestore();
+      const userDoc = await db.collection('users').doc(user._id.toString()).get();
+      userProfile = userDoc.exists ? userDoc.data() : null;
     }
-
-    // Fetch user profile from Firestore
-    const userDoc = await db.collection('users').doc(user._id.toString()).get();
-    const userProfile = userDoc.exists ? userDoc.data() : null;
 
     // Generate JWT token
     const accessToken = jwt.sign(
@@ -152,9 +86,13 @@ router.post("/firebase/sync", require("../middleware/firebaseAuth").verifyFireba
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Fetch user profile from Firestore
-    const userDoc = await db.collection('users').doc(user._id.toString()).get();
-    const userProfile = userDoc.exists ? userDoc.data() : null;
+    // Fetch user profile from Firestore if Firebase is initialized
+    let userProfile = null;
+    if (admin.apps.length > 0) {
+      const db = admin.firestore();
+      const userDoc = await db.collection('users').doc(user._id.toString()).get();
+      userProfile = userDoc.exists ? userDoc.data() : null;
+    }
 
     res.json({
       user: {
@@ -189,13 +127,16 @@ router.put("/profile", require("../middleware/combinedAuth").authenticate, async
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update Firestore user document
-    await db.collection('users').doc(userId.toString()).update({
-      name: user.name,
-      phone: user.phone,
-      companyName: user.companyName,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+    // Update Firestore user document if Firebase is initialized
+    if (admin.apps.length > 0) {
+      const db = admin.firestore();
+      await db.collection('users').doc(userId.toString()).update({
+        name: user.name,
+        phone: user.phone,
+        companyName: user.companyName,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+    }
 
     res.json({
       user: {
