@@ -66,6 +66,9 @@ frontend/
 - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`
 - `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
 
+### Firebase Authorized Domains
+To use Google/Firebase login on Vercel or custom domains, add the deployed URL to **Firebase Console → Authentication → Settings → Authorized domains**.
+
 ## Local Development
 ### Backend
 ```bash

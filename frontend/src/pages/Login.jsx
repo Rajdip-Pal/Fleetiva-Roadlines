@@ -26,6 +26,16 @@ export default function Login() {
     return response.data.user.role;
   };
 
+  const formatFirebaseError = (err) => {
+    if (err?.code === "auth/unauthorized-domain") {
+      return "Firebase blocked this domain. Add your Vercel/production URL to Firebase Auth → Authorized domains.";
+    }
+    if (err?.code === "auth/popup-closed-by-user") {
+      return "Login popup was closed. Please try again.";
+    }
+    return err?.message || "Login failed";
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -58,7 +68,7 @@ export default function Login() {
       else if (role === "driver") navigate("/driver", { replace: true });
       else navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Login failed");
+      setError(err.response?.data?.message || formatFirebaseError(err));
     } finally {
       setLoading(false);
     }
@@ -82,7 +92,7 @@ export default function Login() {
       else if (role === "driver") navigate("/driver", { replace: true });
       else navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Google login failed");
+      setError(err.response?.data?.message || formatFirebaseError(err));
     } finally {
       setLoading(false);
     }
