@@ -141,12 +141,12 @@ router.post("/firebase/login", async (req, res) => {
 });
 
 /* ================= FIREBASE USER SYNC ================= */
-router.post("/firebase/sync", require("../middleware/firebaseAuth").verifyFirebaseToken, async (req, res) => {
+router.post("/firebase/sync", require("../middleware/combinedAuth").authenticate, async (req, res) => {
   try {
-    const firebaseUser = req.user;
+    const userId = req.user.userId;
 
     // User should already be synced by the middleware, just return user data
-    const user = await User.findOne({ firebaseUid: firebaseUser.uid });
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
