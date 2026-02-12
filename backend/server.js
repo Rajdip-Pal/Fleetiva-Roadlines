@@ -4,6 +4,9 @@ const { connectMongo } = require("./config/db2");
 
 require("./config/clients");
 
+// ================= SERVER START =================
+const PORT = process.env.PORT || 5000;
+
 // ================= DATABASE =================
 connectMongo()
   .then(() => {
@@ -20,12 +23,4 @@ connectMongo()
 // ================= HEALTH ROUTE =================
 app.get("/", (req, res) => {
   res.json({ status: "Fleetiva backend running" });
-});
-
-// ================= SERVER START =================
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
 });

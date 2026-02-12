@@ -270,7 +270,7 @@ router.get('/me', require('../middleware/combinedAuth').authenticate, asyncHandl
 }));
 
 router.post('/forgot-password', asyncHandler(async (req, res) => {
-  const { error } = forgotPasswordSchema.validate(req.body, { abortEarly: false });
+  const { error, value } = forgotPasswordSchema.validate(req.body, { abortEarly: false });
   if (error) {
     return res.status(400).json({
       message: 'Validation failed',
@@ -292,11 +292,11 @@ router.post('/forgot-password', asyncHandler(async (req, res) => {
     otpStore.set(email, { otp, expires: Date.now() + OTP_TTL_SECONDS * 1000 });
   }
 
-  await twilioClient.messages.create({
-    body: `Your Fleetiva OTP is ${otp}. It expires in ${Math.floor(OTP_TTL_SECONDS / 60)} minutes.`,
-    from: process.env.TWILIO_FROM_NUMBER,
-    to: phone,
-  });
+  await sendEmail(
+    email,
+    'Your Fleetiva OTP Code',
+    `<p>Your Fleetiva OTP is <strong>${otp}</strong>.</p><p>It expires in ${Math.floor(OTP_TTL_SECONDS / 60)} minutes.</p>`
+  );
 
   res.json({ message: 'OTP sent successfully.' });
 }));

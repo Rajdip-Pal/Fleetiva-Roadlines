@@ -27,15 +27,15 @@ export default function ForgotPassword() {
 
   const handleRequest = async (e) => {
     e.preventDefault();
-    if (!/^\d{10}$/.test(phone)) {
-      toast.error("Enter a valid 10-digit phone number.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Enter a valid email address.");
       return;
     }
     setLoading(true);
     try {
       await api.post("/auth/forgot-password", { email });
       setStep("reset");
-      alert("OTP sent to your email!");
+      toast.success("OTP sent to your email!");
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to send OTP");
     } finally {
