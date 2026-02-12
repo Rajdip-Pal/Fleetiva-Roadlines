@@ -1,7 +1,6 @@
-import { NavLink } from "react-router-dom";
-
 import { useContext, useState, useRef, useEffect } from "react";
-import { AppContext } from "../context/appContextStore";
+import { NavLink } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 import { safeStorage } from "../utils/storage";
 
 const getRole = (user) => user?.role || safeStorage.get("role") || "customer";
@@ -79,9 +78,16 @@ export default function Navbar() {
               <NavLink to="/stats" className="dropdown-item">
                 📊 My Stats
               </NavLink>
-              <NavLink to="/my-loads" className="dropdown-item">
-                🚚 My Loads
-              </NavLink>
+              {role === "customer" && (
+                <NavLink to="/my-loads" className="dropdown-item">
+                  🚚 My Loads
+                </NavLink>
+              )}
+              {role === "driver" && (
+                <NavLink to="/my-trucks" className="dropdown-item">
+                  🚛 My Trucks
+                </NavLink>
+              )}
 
               <div className="dropdown-divider" />
               <button className="dropdown-item logout" onClick={logout}>

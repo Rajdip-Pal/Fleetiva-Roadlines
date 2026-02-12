@@ -2,9 +2,9 @@ require("dotenv").config();
 const app = require("./app");
 const { connectMongo } = require("./config/db2");
 
-const PORT = process.env.PORT || 5000;
+require("./config/clients");
 
-// ================= SERVER START =================
+// ================= DATABASE =================
 connectMongo()
   .then(() => {
     console.log("✅ MongoDB connected");
@@ -16,3 +16,16 @@ connectMongo()
     console.error("❌ MongoDB connection failed:", err.message);
     process.exit(1);
   });
+
+// ================= HEALTH ROUTE =================
+app.get("/", (req, res) => {
+  res.json({ status: "Fleetiva backend running" });
+});
+
+// ================= SERVER START =================
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
